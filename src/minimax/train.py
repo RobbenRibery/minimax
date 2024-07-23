@@ -61,7 +61,7 @@ if __name__ == "__main__":
                 name=args.xpid,
                 group=wandb_args.group,
             )
-            callback = wandb.log
+            callback = wandb.log 
         else:
             callback = None
 

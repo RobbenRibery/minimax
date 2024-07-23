@@ -5,6 +5,7 @@ All rights reserved.
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
+from typing import Dict, Optional, Union
 
 import copy
 from functools import partial
@@ -21,6 +22,7 @@ from .eval_runner import EvalRunner
 from .dr_runner import DRRunner
 from .paired_runner import PAIREDRunner
 from .plr_runner import PLRRunner
+from minimax.util.loggers import Logger
 from minimax.util.rl import UEDScore, PopPLRManager
 import minimax.envs as envs
 import minimax.models as models
@@ -47,21 +49,21 @@ RUNNER_INFO = {
 class ExperimentRunner:
     def __init__(
         self,
-        train_runner,
-        env_name,
+        train_runner:str,
+        env_name:str,
         agent_rl_algo,
         student_model_name,
         teacher_model_name=None,
-        train_runner_kwargs={},
-        env_kwargs={},
-        ued_env_kwargs={},
-        student_rl_kwargs={},
-        teacher_rl_kwargs={},
-        student_model_kwargs={},
-        teacher_model_kwargs={},
-        eval_kwargs={},
-        eval_env_kwargs={},
-        n_devices=1,
+        train_runner_kwargs:Dict={},
+        env_kwargs:Dict={},
+        ued_env_kwargs:Dict={},
+        student_rl_kwargs:Dict={},
+        teacher_rl_kwargs:Dict={},
+        student_model_kwargs:Dict={},
+        teacher_model_kwargs:Dict={},
+        eval_kwargs:Dict={},
+        eval_env_kwargs:Dict={},
+        n_devices:int=1,
     ):
         self.env_name = env_name
         self.agent_rl_algo = agent_rl_algo
@@ -97,24 +99,8 @@ class ExperimentRunner:
             train_runner_kwargs.update(dict(teacher_agents=[teacher_agent]))
             train_runner_kwargs.update(dict(ued_env_kwargs=ued_env_kwargs))
 
-        # Debug, tabulate student and teacher model
-        # import jax.numpy as jnp
-        # dummy_rng = jax.random.PRNGKey(0)
-        # obs, _ = dummy_env.reset(dummy_rng)
-        # hx = student_model.initialize_carry(dummy_rng, (1,))
-        # ued_obs, _ = dummy_env.reset_teacher(dummy_rng)
-        # ued_hx = teacher_model.initialize_carry(dummy_rng, (1,))
-
-        # obs['image'] = jnp.expand_dims(obs['image'], 0)
-        # ued_obs['image'] = jnp.expand_dims(ued_obs['image'], 0)
-
-        # print(student_model.tabulate(dummy_rng, obs, hx))
-        # print(teacher_model.tabulate(dummy_rng, ued_obs, hx))
-
-        # import pdb; pdb.set_trace()
-
         # ---- Set up train runner ----
-        runner_cls = RUNNER_INFO[train_runner].runner_cls
+        runner_cls:Union[PLRRunner, DRRunner, PAIREDRunner] = RUNNER_INFO[train_runner].runner_cls
 
         # Set up learning rate annealing parameters
         lr_init = train_runner_kwargs.lr
@@ -126,7 +112,7 @@ class ExperimentRunner:
         if train_runner_kwargs.lr_final == train_runner_kwargs.lr:
             train_runner_kwargs.lr_anneal_steps = 0
 
-        self.runner = runner_cls(
+        self.runner:Union[PLRRunner, DRRunner, PAIREDRunner] = runner_cls(
             env_name=env_name,
             env_kwargs=env_kwargs,
             student_agents=[student_agent],
@@ -193,17 +179,15 @@ class ExperimentRunner:
 
     def train(
         self,
-        rng,
-        agent_algo="ppo",
-        algo_runner="dr",
-        n_total_updates=1000,
-        logger=None,
-        log_interval=1,
-        test_interval=1,
-        checkpoint_interval=0,
-        archive_interval=0,
-        archive_init_checkpoint=False,
-        from_last_checkpoint=False,
+        rng:int,
+        n_total_updates:int=1000,
+        logger:Optional[Logger]=None,
+        log_interval:int=1,
+        test_interval:int=1,
+        checkpoint_interval:int=0,
+        archive_interval:int=0,
+        archive_init_checkpoint:bool=False,
+        from_last_checkpoint:bool=False,
     ):
         """
         Entry-point for training

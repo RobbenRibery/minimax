@@ -98,7 +98,7 @@ class PLRRunner(DRRunner):
                 self.n_parallel % self.mutation_subsample_size == 0
             ), "Number of parallel envs must be divisible by mutation subsample size."
 
-    def reset(self, rng):
+    def reset(self, rng:int):
         runner_state = list(super().reset(rng))
         rng = runner_state[0]
         runner_state[0], subrng = jax.random.split(rng)
