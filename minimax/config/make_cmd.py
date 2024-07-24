@@ -235,7 +235,7 @@ if __name__ == "__main__":
         os.path.expandvars(os.path.expanduser(args.dir)), json_filename
     )
     config = json.load(open(grid_path))
-    cmd = config.get("cmd", "train")
+    cmd = config.get("cmd", "minimax.train")
     grid = config["args"]
     #pprint(grid)
     xpid_prefix = "" if "xpid_prefix" not in config else config["xpid_prefix"]
