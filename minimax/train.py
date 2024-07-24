@@ -5,6 +5,8 @@ All rights reserved.
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
+import sys
+sys.path.append('/teamspace/studios/this_studio/minimax/src/minimax')
 
 import os
 import copy
@@ -49,21 +51,23 @@ if __name__ == "__main__":
         # Set up wandb
         wandb_args = args.wandb_args
         if wandb_args.base_url:
-            os.environ["WANDB_BASE_URL"] = wandb_args.base_url
+            #os.environ["WANDB_BASE_URL"] = wandb_args.base_url
+            pass
         if wandb_args.api_key:
-             os.environ["WANDB_API_KEY"] = wandb_args.api_key
-        if wandb_args.base_url or wandb_args.api_key:
-            os.environ["WANDB_CACHE_DIR"] = "~/.cache/wandb"
-            wandb.init(
-                project=wandb_args.project,
-                entity=wandb_args.entity,
-                config=args,
-                name=args.xpid,
-                group=wandb_args.group,
-            )
-            callback = wandb.log 
-        else:
-            callback = None
+            #os.environ["WANDB_API_KEY"] = wandb_args.api_key
+            pass
+        #if wandb_args.base_url or wandb_args.api_key:
+        os.environ["WANDB_CACHE_DIR"] = "~/.cache/wandb"
+        wandb.init(
+            project="minimax-accel",
+            entity=None,
+            config=args,
+            name=args.xpid,
+            group=wandb_args.group,
+        )
+        callback = wandb.log 
+        # else:
+        #     callback = None
 
         logger = Logger(
             log_dir=args.log_dir,

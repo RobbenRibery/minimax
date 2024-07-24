@@ -10,16 +10,11 @@ tmp
 *.map
 *.pyc
 *.h5
-__pycache__/
 .pytest_cache
 dist/
 **/data/
-**/logs/
-**/results/
 **/images/
-**/wandb/
 **/figures/
-**/config/wandb.json
 !docs/images
 src/*.egg-info
 **/.ipynb_checkpoints/

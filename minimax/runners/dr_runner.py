@@ -22,7 +22,7 @@ from flax.core.frozen_dict import FrozenDict
 import minimax.envs as envs
 from minimax.util import pytree as _tree_util
 from minimax.util.rl import AgentPop, VmapTrainState, RolloutStorage, RollingStats
-
+from minimax.envs.viz.grid_viz import GridVisualizer
 
 class DRRunner:
     """
@@ -113,7 +113,6 @@ class DRRunner:
         self._update_ep_stats = jax.vmap(jax.vmap(self.rolling_stats.update_stats))
 
         if self.render:
-            from envs.viz.grid_viz import GridVisualizer
 
             self.viz = GridVisualizer()
             self.viz.show()

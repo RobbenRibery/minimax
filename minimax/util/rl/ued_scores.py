@@ -153,7 +153,7 @@ def compute_ued_scores(
     mean_env_returns_per_agent, max_env_returns_per_agent, score_info = jax.vmap(
         _compute_ued_scores, in_axes=(None, 0, 0)
     )(score_name, batch, info)
-
+    #print(score_name)
     if score_name in [UEDScore.RELATIVE_REGRET, UEDScore.MEAN_RELATIVE_REGRET]:
         assert (
             len(mean_env_returns_per_agent) == 2

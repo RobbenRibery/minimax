@@ -1,0 +1,5 @@
+[default]
+entity = rundong-liu
+project = minimax-accel
+base_url = https://api.wandb.ai
+
