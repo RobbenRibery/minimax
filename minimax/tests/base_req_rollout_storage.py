@@ -11,11 +11,8 @@ import numpy as np
 import jax
 import jax.numpy as jnp
 
-from util.rl import RolloutStorage
-import envs
-import models
-import agents
-
+from minimax.util.rl import RolloutStorage
+from minimax import envs, models, agents
 
 class RequiresRolloutStorageTestClass:
     def setup_class(self):

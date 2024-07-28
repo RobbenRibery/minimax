@@ -11,10 +11,9 @@ import numpy as np
 import jax
 import jax.numpy as jnp
 
-import util.rl.ued_scores as _ued_scores
+import minimax.util.rl.ued_scores as _ued_scores
 
-from tests.base_req_rollout_storage import RequiresRolloutStorageTestClass
-
+from minimax.tests.base_req_rollout_storage import RequiresRolloutStorageTestClass
 
 class TestUEDScores(RequiresRolloutStorageTestClass):
     def test_compute_ued_scores_returns(self):

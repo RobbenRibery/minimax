@@ -18,7 +18,7 @@ from minimax.envs.registration import register_mutator
 
 
 class Mutations(IntEnum):
-    # Turn left, turn right, move forward
+    # No Operation, Flip the Wall, Move the Goal
     NO_OP = 0
     FLIP_WALL = 1
     MOVE_GOAL = 2
@@ -90,9 +90,13 @@ def move_goal_flip_walls(rng, params, state, n=1):
         return next_state, None
 
     rng, nrng, *mrngs = jax.random.split(rng, n + 2)
+    
+    # chose types of mutations, indexed by 0, 1 and 2
     mutations = jax.random.choice(nrng, np.arange(len(Mutations)), (n,))
-
+    
+    # get the final state after a carried over n-step mutations
     state, _ = jax.lax.scan(_mutate, state, (jnp.array(mrngs), mutations))
+    
 
     # Update state maze_map
     next_maze_map = make_maze_map(

@@ -11,11 +11,11 @@ import numpy as np
 import jax
 import jax.numpy as jnp
 
-import tests.dummy_test_envs as dummy_test_envs
-import envs
-from envs.environment_ued import UEDEnvironment
-from envs.wrappers import EnvWrapper
-from envs.wrappers import UEDEnvWrapper
+import minimax.tests.dummy_test_envs as dummy_test_envs
+from minimax import envs
+from minimax.envs.environment_ued import UEDEnvironment
+from minimax.envs.wrappers import EnvWrapper
+from minimax.envs.wrappers import UEDEnvWrapper
 
 
 class TestEnvWrapper:

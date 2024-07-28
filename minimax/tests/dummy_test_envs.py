@@ -13,9 +13,9 @@ import jax
 from flax import struct
 import chex
 
-from envs import environment
-from envs import spaces
-from envs.registration import register, register_ued
+from minimax.envs import environment
+from minimax.envs import spaces
+from minimax.envs.registration import register, register_ued
 
 
 @struct.dataclass
