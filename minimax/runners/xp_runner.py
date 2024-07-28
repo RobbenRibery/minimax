@@ -125,7 +125,9 @@ class ExperimentRunner:
             self.eval_runner = None
         else:
             self.eval_runner = EvalRunner(
-                pop=self.runner.student_pop, env_kwargs=eval_env_kwargs, **eval_kwargs
+                pop=self.runner.student_pop, 
+                env_kwargs=eval_env_kwargs, 
+                **eval_kwargs
             )
 
         self._start_tick = 0
@@ -133,7 +135,7 @@ class ExperimentRunner:
         # ---- Set up device parallelism ----
         self.n_devices = n_devices
         if n_devices > 1:
-            dummy_runner_state = self.reset_train_runner(jax.random.PRNGKey(0))
+            dummy_runner_state = self.runner.reset(jax.random.PRNGKey(0))
             self._shmap_run = self._make_shmap_run(dummy_runner_state)
         else:
             self._shmap_run = None
