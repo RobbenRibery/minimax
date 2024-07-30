@@ -15,9 +15,7 @@ import jax
 import jax.numpy as jnp
 from jax.sharding import PartitionSpec as P
 import optax
-import flax
-import flax.linen as nn
-from flax.core.frozen_dict import FrozenDict
+import chex
 
 import minimax.envs as envs
 from minimax.util import pytree as _tree_util
@@ -38,7 +36,7 @@ class DRRunner:
 
     def __init__(
         self,
-        env_name,
+        env_name:str,
         env_kwargs,
         student_agents,
         n_students=1,
@@ -113,11 +111,10 @@ class DRRunner:
         self._update_ep_stats = jax.vmap(jax.vmap(self.rolling_stats.update_stats))
 
         if self.render:
-
             self.viz = GridVisualizer()
             self.viz.show()
 
-    def reset(self, rng):
+    def reset(self, rng:chex.PRNGKey):
         self.n_updates = 0
 
         n_parallel = self.n_parallel * self.n_devices

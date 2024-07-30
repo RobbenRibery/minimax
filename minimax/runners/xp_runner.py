@@ -17,13 +17,14 @@ import jax
 from jax.sharding import Mesh, PartitionSpec as P
 from jax.experimental import mesh_utils
 from jax.experimental.shard_map import shard_map
+import chex
 
 from .eval_runner import EvalRunner
 from .dr_runner import DRRunner
 from .paired_runner import PAIREDRunner
 from .plr_runner import PLRRunner
 from minimax.util.loggers import Logger
-from minimax.util.rl import UEDScore, PopPLRManager
+from minimax.util.rl import VmapTrainState
 import minimax.envs as envs
 import minimax.models as models
 import minimax.agents as agents
@@ -133,7 +134,7 @@ class ExperimentRunner:
         # ---- Set up device parallelism ----
         self.n_devices = n_devices
         if n_devices > 1:
-            dummy_runner_state = self.reset_train_runner(jax.random.PRNGKey(0))
+            dummy_runner_state = self.runner.reset(jax.random.PRNGKey(0))
             self._shmap_run = self._make_shmap_run(dummy_runner_state)
         else:
             self._shmap_run = None
@@ -179,7 +180,7 @@ class ExperimentRunner:
 
     def train(
         self,
-        rng:int,
+        rng:chex.PRNGKey,
         n_total_updates:int=1000,
         logger:Optional[Logger]=None,
         log_interval:int=1,
@@ -214,7 +215,7 @@ class ExperimentRunner:
         # Train loop
         log_on = logger is not None and log_interval > 0
         checkpoint_on = checkpoint_interval > 0 or archive_interval > 0
-        train_state = runner_state[1]
+        train_state:VmapTrainState = runner_state[1]
 
         tick = self._start_tick
         train_steps = (

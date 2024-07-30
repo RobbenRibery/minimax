@@ -68,6 +68,7 @@ class TestUEDScores(RequiresRolloutStorageTestClass):
 
         mean_return = mean_env_returns_per_agent.mean(0)
         max_return = max_env_returns_per_agent.max(0)
+        #print(mean_return, type(mean_return), mean_return.mean(), type(mean_return.mean()))
 
         assert (mean_return != ued_score).sum() == 0
 

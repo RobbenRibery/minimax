@@ -1,4 +1,4 @@
-<h1 align="center"><img src="docs/images/minimax_logo.png" width="60%" /></h1>
+W<h1 align="center"><img src="docs/images/minimax_logo.png" width="60%" /></h1>
 
 <h3 align="center"><i>Efficient baselines for autocurricula in JAX</i></h3>
 

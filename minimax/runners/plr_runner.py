@@ -14,7 +14,7 @@ import numpy as np
 import jax
 import jax.numpy as jnp
 from jax.sharding import PartitionSpec as P
-import optax
+import chex
 import flax
 import flax.linen as nn
 from flax.core.frozen_dict import FrozenDict
@@ -98,7 +98,7 @@ class PLRRunner(DRRunner):
                 self.n_parallel % self.mutation_subsample_size == 0
             ), "Number of parallel envs must be divisible by mutation subsample size."
 
-    def reset(self, rng:int):
+    def reset(self, rng:chex.PRNGKey):
         runner_state = list(super().reset(rng))
         rng = runner_state[0]
         runner_state[0], subrng = jax.random.split(rng)
@@ -111,7 +111,7 @@ class PLRRunner(DRRunner):
             replay_prob=self.replay_prob,
             buffer_size=self.buffer_size,
             staleness_coef=self.staleness_coef,
-            temp=self.temp,
+            temp=self.temp, 
             use_score_ranks=self.use_score_ranks,
             min_fill_ratio=self.min_fill_ratio,
             use_robust_plr=self.use_robust_plr,
@@ -389,8 +389,8 @@ class PLRRunner(DRRunner):
     @partial(jax.jit, static_argnums=(0,))
     def run(
         self,
-        rng:int,
-        train_state,
+        rng:chex.PRNGKey,
+        train_state:VmapTrainState,
         state,
         start_state,
         obs,
