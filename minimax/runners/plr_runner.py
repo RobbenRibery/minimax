@@ -331,7 +331,7 @@ class PLRRunner(DRRunner):
 
         return mutated_levels, mutated_level_idxs, parent_idxs
 
-    def _efficient_grad_update(self, rng, train_state, train_batch, is_replay):
+    def _efficient_grad_update(self, rng:chex.PRNGKey, train_state, train_batch, is_replay:bool):
         # PPOAgent vmaps over the train state and batch. Batch must be N x EM
         skip_grad_update = jnp.logical_and(self.use_robust_plr, ~is_replay)
 
@@ -406,7 +406,7 @@ class PLRRunner(DRRunner):
 
         # Sample next training levels via PLR
         rng, *vrngs = jax.random.split(rng, self.n_students + 1)
-        obs, state, extra = self.benv.reset(jnp.array(vrngs), self.n_parallel, 1)
+        obs, state, extra = self.benv.reset(jnp.array(vrngs), self.n_parallel, 1) 
 
         if self.use_parallel_eval:
             n_level_samples = self.n_parallel // self._n_parallel_batches

@@ -26,6 +26,7 @@ from .arguments import parser
 if __name__ == "__main__":
     with jax.disable_jit(False):
         args = parser.parse_args(preview=True)
+        print(args.env_args)
 
         # === Setup the main runner ===
         _args = copy.deepcopy(args)  # Mutable record of args

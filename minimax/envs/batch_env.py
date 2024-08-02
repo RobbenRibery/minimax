@@ -57,9 +57,7 @@ class BatchEnv:
             n_eval = self.n_eval
 
         brngs = jnp.repeat(jax.random.split(rng, n_parallel), n_eval, axis=0)
-
         obs, state, extra = jax.vmap(self.env.reset, in_axes=(0,))(brngs)
-
         return obs, state, extra
 
     @partial(jax.jit, static_argnums=0)

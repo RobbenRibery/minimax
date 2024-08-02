@@ -90,8 +90,7 @@ class PLRManager:
         self.filled_count = jnp.zeros((1,), dtype=jnp.int32)
         self.n_mutations = jnp.zeros(buffer_size, dtype=jnp.uint32)
 
-    partial(jax.jit, static_argnums=(0,))
-
+    @partial(jax.jit, static_argnums=(0,))
     def reset(self):
         return PLRBuffer(
             ued_score=self.ued_score.value,
@@ -111,8 +110,7 @@ class PLRManager:
             n_mutations=self.n_mutations,
         )
 
-    partial(jax.jit, static_argnums=(0,))
-
+    @partial(jax.jit, static_argnums=(0,))
     def _get_replay_dist(self, scores, ages, filled):
         # Score dist
         if self.use_score_ranks:
@@ -150,8 +148,7 @@ class PLRManager:
 
         return replay_dist
 
-    partial(jax.jit, static_argnums=(0,))
-
+    @partial(jax.jit, static_argnums=(0,))
     def _get_next_insert_idx(self, plr_buffer:PLRBuffer):
         return jax.lax.cond(
             jnp.greater(plr_buffer.buffer_size, plr_buffer.filled_count[0]),
@@ -200,8 +197,7 @@ class PLRManager:
         return levels, rand_idxs, plr_buffer
 
     # Levels must be sampled sequentially, to account for staleness
-    partial(jax.jit, static_argnums=(0, 4, 5))
-
+    @partial(jax.jit, static_argnums=(0, 4, 5))
     def sample(self, rng, plr_buffer, new_levels, n, random=False):
         rng, replay_rng, sample_rng = jax.random.split(rng, 3)
 
@@ -293,8 +289,7 @@ class PLRManager:
         else:
             return level_idxs, jnp.zeros_like(level_idxs, dtype=jnp.bool_)
 
-    partial(jax.jit, static_argnums=(0, 7))
-
+    @partial(jax.jit, static_argnums=(0, 7))
     def update(
         self,
         plr_buffer,
@@ -450,8 +445,7 @@ class PopPLRManager(PLRManager):
         sup = super()
         return jax.vmap(lambda *_: sup.reset())(np.arange(n))
 
-    partial(jax.jit, static_argnums=(0, 4, 5))
-
+    @partial(jax.jit, static_argnums=(0, 4, 5))
     def sample(self, rng, plr_buffer, new_levels, n, random=False):
         sup = super()
 
@@ -466,8 +460,7 @@ class PopPLRManager(PLRManager):
         sup = super()
         return jax.vmap(sup.dedupe_levels)(plr_buffer, levels, level_idxs)
 
-    partial(jax.jit, static_argnums=(0, 7))
-
+    @partial(jax.jit, static_argnums=(0, 7))
     def update(
         self,
         plr_buffer,
@@ -491,8 +484,7 @@ class PopPLRManager(PLRManager):
             parent_idxs,
         )
 
-    partial(jax.jit, static_argnums=(0,))
-
+    @partial(jax.jit, static_argnums=(0,))
     def get_metrics(self, plr_buffer):
         sup = super()
         return jax.vmap(sup.get_metrics)(plr_buffer)
