@@ -5,7 +5,7 @@ All rights reserved.
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
-from typing import Dict, Optional, Union
+from typing import Tuple, Dict, Optional, Union
 
 import copy
 from functools import partial
@@ -140,7 +140,7 @@ class ExperimentRunner:
             self._shmap_run = None
 
     @partial(jax.jit, static_argnums=(0,))
-    def step(self, runner_state, evaluate=False):
+    def step(self, runner_state:Tuple, evaluate:bool=False):
         if self.n_devices > 1:
             run_fn = self._shmap_run
         else:

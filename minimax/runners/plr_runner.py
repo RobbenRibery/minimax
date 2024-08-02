@@ -411,7 +411,8 @@ class PLRRunner(DRRunner):
         if self.use_parallel_eval:
             n_level_samples = self.n_parallel // self._n_parallel_batches
             new_levels = jax.tree_map(
-                lambda x: x.at[:, n_level_samples : 2 * n_level_samples].get(), state
+                lambda x: x.at[:, n_level_samples : 2 * n_level_samples].get(), 
+                state
             )
         else:
             n_level_samples = self.n_parallel

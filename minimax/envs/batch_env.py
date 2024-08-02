@@ -38,6 +38,17 @@ class BatchEnv:
         return jax.vmap(self._reset, in_axes=(0, None, None))(rng, n_parallel, n_eval)
 
     def _reset(self, rng, n_parallel=None, n_eval=None):
+        """
+        Resets the environment by creating `n_parallel` environments, each repeated `n_eval` times.
+
+        Parameters:
+            rng (jax.random.PRNGKey): The random number generator key.
+            n_parallel (int, optional): The number of parallel environments. Defaults to `self.n_parallel`.
+            n_eval (int, optional): The number of times each environment is repeated. Defaults to `self.n_eval`.
+
+        Returns:
+            Tuple[chex.ArrayTree, EnvState, Any]: A tuple containing the observations, states, and extra information from the reset environments.
+        """
         # Create n_parallel envs, repeated n_eval times
         if n_parallel is None:
             n_parallel = self.n_parallel
