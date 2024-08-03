@@ -10,6 +10,7 @@ sys.path.append('/teamspace/studios/this_studio/minimax/src/minimax')
 
 import os
 import copy
+from pprint import pprint 
 
 # os.environ['XLA_FLAGS'] = '--xla_force_host_platform_device_count=2'
 # os.environ['JAX_TRACEBACK_FILTERING'] = 'off'
@@ -30,6 +31,7 @@ if __name__ == "__main__":
 
         # === Setup the main runner ===
         _args = copy.deepcopy(args)  # Mutable record of args
+        print(_args.env_args)
         xp_runner = ExperimentRunner(
             train_runner=_args.train_runner,
             env_name=_args.env_name,
@@ -51,24 +53,27 @@ if __name__ == "__main__":
         # === Configure logging ===
         # Set up wandb
         wandb_args = args.wandb_args
-        if wandb_args.base_url:
-            #os.environ["WANDB_BASE_URL"] = wandb_args.base_url
-            pass
-        if wandb_args.api_key:
-            #os.environ["WANDB_API_KEY"] = wandb_args.api_key
-            pass
-        #if wandb_args.base_url or wandb_args.api_key:
-        os.environ["WANDB_CACHE_DIR"] = "~/.cache/wandb"
-        wandb.init(
-            project="minimax-accel",
-            entity=None,
-            config=args,
-            name=args.xpid,
-            group=wandb_args.group,
-        )
-        callback = wandb.log 
-        # else:
-        #     callback = None
+        print(f"#### WandB args \n")
+        pprint(wandb_args)
+        # if wandb_args.base_url:
+        #     #os.environ["WANDB_BASE_URL"] = wandb_args.base_url
+        #     pass
+        # if wandb_args.api_key:
+        #     #os.environ["WANDB_API_KEY"] = wandb_args.api_key
+        #     pass
+        if wandb_args.project is not None:
+            #if wandb_args.base_url or wandb_args.api_key:
+            os.environ["WANDB_CACHE_DIR"] = "~/.cache/wandb"
+            wandb.init(
+                project=wandb_args.project,
+                entity=None,
+                config=args,
+                name=args.xpid,
+                group=wandb_args.group,
+            )
+            callback = wandb.log 
+        else:
+            callback = None
 
         logger = Logger(
             log_dir=args.log_dir,

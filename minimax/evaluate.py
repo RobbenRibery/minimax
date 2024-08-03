@@ -136,10 +136,12 @@ if __name__ == "__main__":
                 model_name=xp_args.student_model_name,
                 **xp_args.student_model_args,
             )
+            #print('f### Models loaded')
 
             pop = AgentPop(
                 agent=agents.PPOAgent(model=student_model), n_agents=len(agent_idxs)
             )
+            #print(f"### Agent instantiated")
 
             # We force EvalRunner to select all params, since we've already
             # extracted the relevant agent indices.
@@ -151,10 +153,11 @@ if __name__ == "__main__":
                 render_mode=args.render_mode,
                 agent_idxs="*",
             )
+            #print(f"### Runner Instantiated")
 
             rng = jax.random.PRNGKey(args.seed)
             _eval_stats = runner.run(rng, params)
-
+            #print(f"Eval dict: {_eval_stats}")
             eval_stats = {}
             for k, v in _eval_stats.items():
                 prefix_match = re.match(r"^eval/(a[0-9]+):.*", k)
@@ -167,6 +170,7 @@ if __name__ == "__main__":
                     eval_stats[new_k] = v
                 else:
                     eval_stats[k] = v
+                #print(eval_stats[k])
 
             for k, v in eval_stats.items():
                 all_eval_stats[k].append(float(v))
@@ -190,6 +194,7 @@ if __name__ == "__main__":
     logger = HumanOutputFormat(sys.stdout)
     logger.writekvs(aggregate_eval_stats)
 
+
     if args.results_fname is not None:
         if args.results_fname.strip('"') == "*":
             results_fname = args.xpid_prefix or args.xpid
@@ -201,5 +206,6 @@ if __name__ == "__main__":
         if not os.path.isabs(results_path):
             results_path = os.path.join(os.path.abspath(__file__), results_path)
         results_path = os.path.join(results_path, f"{results_fname}.csv")
+        #print(f"#### result path:{results_path}")
         df.to_csv(results_path, index=False)
         print(f"Saved results to {results_path}")

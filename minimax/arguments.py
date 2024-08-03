@@ -736,7 +736,7 @@ wandb_parser.add_argument(
 wandb_parser.add_argument("--api_key", type=str, default=None, help="wandb api key")
 wandb_parser.add_argument("--entity", type=str, default=None, help="Team name")
 wandb_parser.add_argument(
-    "--project", type=str, default="paired", help="wandb project name for logging"
+    "--project", type=str, default=None, help="wandb project name for logging"
 )
 wandb_parser.add_argument(
     "--group", type=str, default=None, help="wandb group name for logging"

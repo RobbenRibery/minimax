@@ -230,6 +230,7 @@ class EvalRunner:
         eval_stats = self.fake_run(rng, params)
         rng, *rollout_rngs = jax.random.split(rng, self.n_envs + 1)
         for i, (benv, env_param) in enumerate(zip(self.benvs, self.env_params)):
+            #print(i)
             rng, *reset_rngs = jax.random.split(rng, self.pop.n_agents + 1)
             obs, state, extra = benv.reset(jnp.array(reset_rngs))
 
@@ -243,6 +244,7 @@ class EvalRunner:
             ep_stats = self.rolling_stats.reset_stats(
                 batch_shape=(self.pop.n_agents, self.n_episodes)
             )
+            #print(ep_stats)
 
             ep_stats = self._rollout_benv(
                 rollout_rngs[i],
@@ -256,10 +258,11 @@ class EvalRunner:
                 extra,
                 ep_stats,
             )
+            #print(ep_stats)
 
             env_name = self.ext_env_names[i]
             mean_return = ep_stats["return"].mean(1)
-
+            #print(mean_return)
             if self.env_has_solved_rate[i]:
                 mean_solved_rate = jax.vmap(jax.vmap(benv.env.eval_solved_rate))(
                     ep_stats
