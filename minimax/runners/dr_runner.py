@@ -5,6 +5,7 @@ All rights reserved.
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
+from typing import Dict, List, Optional
 
 from functools import partial
 from typing import Tuple, Optional
@@ -18,6 +19,7 @@ import optax
 import chex
 
 import minimax.envs as envs
+from minimax.agents.agent import Agent
 from minimax.util import pytree as _tree_util
 from minimax.util.rl import AgentPop, VmapTrainState, RolloutStorage, RollingStats
 from minimax.envs.viz.grid_viz import GridVisualizer
@@ -37,24 +39,24 @@ class DRRunner:
     def __init__(
         self,
         env_name:str,
-        env_kwargs,
-        student_agents,
-        n_students=1,
-        n_parallel=1,
-        n_eval=1,
-        n_rollout_steps=256,
-        lr=1e-4,
-        lr_final=None,
-        lr_anneal_steps=0,
-        max_grad_norm=0.5,
-        discount=0.99,
-        gae_lambda=0.95,
-        adam_eps=1e-5,
-        normalize_return=False,
-        track_env_metrics=False,
-        n_unroll_rollout=1,
-        n_devices=1,
-        render=False,
+        env_kwargs:Dict,
+        student_agents:List[Agent],
+        n_students:int=1,
+        n_parallel:int=1,
+        n_eval:int=1,
+        n_rollout_steps:int=256,
+        lr:float=1e-4,
+        lr_final:Optional[float]=None,
+        lr_anneal_steps:int=0,
+        max_grad_norm:float=0.5,
+        discount:float=0.99,
+        gae_lambda:float=0.95,
+        adam_eps:float=1e-5,
+        normalize_return:Optional[bool]=False,
+        track_env_metrics:Optional[bool]=False,
+        n_unroll_rollout:int=1,
+        n_devices:int=1,
+        render:Optional[bool]=False,
     ):
 
         assert len(student_agents) == 1, "Only one type of student supported."
@@ -143,7 +145,8 @@ class DRRunner:
 
         tx = optax.chain(
             optax.clip_by_global_norm(self.max_grad_norm),
-            optax.adam(learning_rate=float(self.lr), eps=self.adam_eps),
+            optax.adam(learning_rate=schedule_fn, eps=self.adam_eps),
+            #optax.adam(learning_rate=float(self.lr), eps=self.adam_eps),
         )
 
         train_state = VmapTrainState.create(
