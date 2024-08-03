@@ -18,5 +18,6 @@ dist/
 !docs/images
 src/*.egg-info
 **/.ipynb_checkpoints/
+logs
 
 !src/minimax/config
