@@ -138,8 +138,8 @@ class DRRunner:
         params = self.student_pop.init_params(subrng, dummy_obs)
 
         schedule_fn = optax.linear_schedule(
-            init_value=-float(self.lr),
-            end_value=-float(self.lr_final),
+            init_value=float(self.lr),
+            end_value=float(self.lr_final),
             transition_steps=self.lr_anneal_steps,
         )
 
@@ -162,7 +162,7 @@ class DRRunner:
         return (
             rng,
             train_state,
-            state,
+            state,  # benv generated state 
             start_state,  # Used to track metrics from starting state
             obs,
             carry,

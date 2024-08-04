@@ -19,13 +19,13 @@ from flax.training.train_state import TrainState
 from tensorflow_probability.substrates import jax as tfp
 
 from .agent import Agent
-
+from minimax.models.maze.gridworld_models import GridWorldACTeacherModel
 
 class PPOAgent(Agent):
     def __init__(
         self,
-        model,
-        n_epochs=5,
+        model:GridWorldACTeacherModel,
+        n_epochs:int=5,
         n_minibatches=1,
         value_loss_coef=0.5,
         entropy_coef=0.0,

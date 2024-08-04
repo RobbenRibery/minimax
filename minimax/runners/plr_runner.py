@@ -20,6 +20,8 @@ import flax.linen as nn
 from flax.core.frozen_dict import FrozenDict
 
 import minimax.envs as envs
+from minimax.envs.maze.maze import EnvState
+
 from minimax.runners.dr_runner import DRRunner
 from minimax.util import pytree as _tree_util
 from minimax.util.rl import (
@@ -179,15 +181,15 @@ class PLRRunner(DRRunner):
     @partial(jax.jit, static_argnums=(0, 8))
     def _eval_and_update_plr(
         self,
-        rng,
-        levels,
-        level_idxs,
-        train_state,
-        update_plr,
+        rng:chex.PRNGKey,
+        levels:EnvState,
+        level_idxs:chex.Array,
+        train_state:VmapTrainState,
+        update_plr:chex.Array,
         parent_idxs=None,
         dupe_mask=None,
-        fake=False,
-    ):
+        fake:bool=False,
+    ) -> Tuple:
         # Collect rollout and optionally update plr buffer
         # Returns train_batch and ued_scores
         # Perform rollout: @todo: pmap this
@@ -244,6 +246,7 @@ class PLRRunner(DRRunner):
             ued_info = {"max_returns": max_returns}
         else:
             ued_info = None
+
         ued_scores, ued_score_info = compute_ued_scores(
             self.ued_score,
             train_batch,
@@ -507,6 +510,7 @@ class PLRRunner(DRRunner):
         else:
             dupe_mask = None
 
+        # -------- DON'T CHANGE --------- #
         # Evaluate levels + update PLR
         result = self._eval_and_update_plr(
             rng,
@@ -545,12 +549,11 @@ class PLRRunner(DRRunner):
         train_state, update_stats = self._efficient_grad_update(
             subrng, train_state, train_batch, is_replay
         )
+        # -------- DON'T CHANGE --------- #
 
         # Mutation step
         use_mutations = jnp.logical_and(self.use_mutations, is_replay)
-        use_mutations = jnp.logical_and(
-            use_mutations, not self.use_parallel_eval
-        )  # Already mutated above in parallel
+        use_mutations = jnp.logical_and(use_mutations, not self.use_parallel_eval)  # Already mutated above in parallel
         rng, arng, brng = jax.random.split(rng, 3)
 
         mutated_levels, mutated_level_idxs, parent_idxs = jax.lax.cond(

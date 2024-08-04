@@ -5,7 +5,7 @@ All rights reserved.
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
-
+from typing import Tuple
 from functools import partial
 
 import jax
@@ -16,6 +16,7 @@ import chex
 import numpy as np
 
 from .ued_scores import UEDScore
+from minimax.envs.maze.maze import EnvState
 
 
 class PLRBuffer(struct.PyTreeNode):
@@ -44,8 +45,8 @@ class PLRBuffer(struct.PyTreeNode):
 class PLRManager:
     def __init__(
         self,
-        example_level,  # Example env instance
-        ued_score,
+        example_level:EnvState,  # Example env instance
+        ued_score:UEDScore,
         replay_prob=0.5,
         buffer_size=100,
         staleness_coef=0.3,
@@ -75,8 +76,9 @@ class PLRManager:
 
         self.n_devices = n_devices
 
-        example_level = jax.tree_map(lambda x: jnp.array(x), example_level)
-        self.levels = jax.tree_map(
+        example_level = jax.tree_util.tree_map(lambda x: jnp.array(x), example_level)
+        # fill all the levels by coping a zeros tensor across all the EnvState attributes
+        self.levels = jax.tree_util.tree_map(
             lambda x: (
                 jnp.tile(jnp.zeros_like(x), (buffer_size,) + (1,) * (len(x.shape) - 1))
             ).reshape(buffer_size, *x.shape),
@@ -161,7 +163,7 @@ class PLRManager:
         )
 
     @partial(jax.jit, static_argnums=(0, 3))
-    def _sample_replay_levels(self, rng, plr_buffer:PLRBuffer, n):
+    def _sample_replay_levels(self, rng:chex.PRNGKey, plr_buffer:PLRBuffer, n:int) -> Tuple[EnvState, chex.Array, PLRBuffer]:
         def _sample_replay_level(carry, step):
             ages = carry
             subrng = step
@@ -174,7 +176,9 @@ class PLRManager:
             replay_level = jax.tree_map(
                 lambda x: x.take(replay_idx, axis=0), plr_buffer.levels
             )
-
+            ## breakdown: 
+            #  1. increament the age of all filled levels 
+            #  2. set the age of the sampled level to 0 (becuase it is replayed )
             ages = ((ages + 1) * (plr_buffer.filled)).at[replay_idx].set(0)
 
             return ages, (replay_level, replay_idx)
@@ -198,7 +202,7 @@ class PLRManager:
 
     # Levels must be sampled sequentially, to account for staleness
     @partial(jax.jit, static_argnums=(0, 4, 5))
-    def sample(self, rng, plr_buffer, new_levels, n, random=False):
+    def sample(self, rng:chex.PRNGKey, plr_buffer:PLRBuffer, new_levels:EnvState, n:int, random=False):
         rng, replay_rng, sample_rng = jax.random.split(rng, 3)
 
         is_replay = jnp.greater(self.replay_prob, jax.random.uniform(replay_rng))
@@ -216,17 +220,18 @@ class PLRManager:
             sample_fn = self._sample_buffer_uniform
         else:
             sample_fn = self._sample_replay_levels
-
+        
+        # sample n new levels (number of parallelised envs) if is_replay == True
         levels, level_idxs, next_plr_buffer = jax.lax.cond(
-            is_replay,
+            is_replay, # must be a boolean scalar
             partial(sample_fn, n=n),
             lambda *_: (new_levels, np.full(n, -1), plr_buffer),
             *(sample_rng, plr_buffer),
         )
 
-        # Update ages when not sampling replay
+        # Update ages when not sampling replay if is_replay == False
         next_plr_buffer = jax.lax.cond(
-            is_replay,
+            is_replay, # must be a boolean scalar
             lambda *_: next_plr_buffer,
             lambda *_: next_plr_buffer.replace(
                 ages=(plr_buffer.ages + n) * (plr_buffer.filled)
