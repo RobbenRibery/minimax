@@ -262,7 +262,6 @@ class EvalRunner:
 
             env_name = self.ext_env_names[i]
             mean_return = ep_stats["return"].mean(1)
-            #print(mean_return)
             if self.env_has_solved_rate[i]:
                 mean_solved_rate = jax.vmap(jax.vmap(benv.env.eval_solved_rate))(
                     ep_stats
